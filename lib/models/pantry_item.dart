@@ -33,6 +33,30 @@ class PantryItem {
     return 'good';
   }
 
+  factory PantryItem.fromJson(Map<String, dynamic> json) {
+    return PantryItem(
+      id: json['id'],
+      name: json['name'],
+      category: json['category'],
+      quantity: json['quantity'],
+      unit: json['unit'],
+      expiryDate: DateTime.parse(json['expiry_date']),
+      addedDate: DateTime.parse(json['added_date']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'quantity': quantity,
+      'unit': unit,
+      'expiry_date': expiryDate.toIso8601String(),
+      'added_date': addedDate.toIso8601String(),
+    };
+  }
+
   PantryItem copyWith({
     String? id,
     String? name,
