@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const Icon(Icons.inventory_2, size: 80, color: Color(0xFFFF9800)),
               const SizedBox(height: 16),
               const Text(
-                'Masuk ke Pantryon',
+                'Pantryon',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFFFF9800)),
               ),
