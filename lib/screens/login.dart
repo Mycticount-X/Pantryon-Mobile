@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../styles/style.dart';
+import '../styles/style.dart'; 
 import 'register.dart';
 import 'dashboard.dart';
 
@@ -53,13 +53,54 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.45,
+            height: screenHeight * 0.45,
             decoration: const BoxDecoration(
               gradient: kDefaultGradient,
+            ),
+          ),
+          
+          Positioned(
+            top: screenHeight * 0.12, 
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.inventory_2, 
+                    size: 48, 
+                    color: kPrimaryColor, 
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Pantryon',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
             ),
           ),
           
@@ -67,31 +108,32 @@ class _LoginScreenState extends State<LoginScreen> {
             alignment: Alignment.bottomCenter,
             child: SingleChildScrollView(
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.65,
+                constraints: BoxConstraints(
+                  minHeight: screenHeight * 0.60,
+                ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
                 ),
                 padding: const EdgeInsets.all(32.0),
+                
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.inventory_2, size: 40, color: kAccentColor),
-                        const SizedBox(width: 12),
-                        const Text('Pantryon', style: kHeaderStyle),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
                     const Text(
-                      'Kelola stok makanan Anda dengan mudah',
+                      'Welcome Back!', 
+                      style: kHeaderStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Let\'s continue our journey!',
                       textAlign: TextAlign.center,
                       style: kSubHeaderStyle,
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 40),
 
+                    // Input Email
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -101,6 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    
+                    // Input Password
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,

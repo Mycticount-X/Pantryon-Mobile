@@ -65,13 +65,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.45,
+            height: screenHeight * 0.45,
             decoration: const BoxDecoration(
               gradient: kDefaultGradient,
+            ),
+          ),
+          
+          Positioned(
+            top: 50, 
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
+          Positioned(
+            top: screenHeight * 0.12,
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: const Icon(Icons.inventory_2, size: 48, color: kPrimaryColor),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Pantryon',
+                  style: TextStyle(
+                    fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.2
+                  ),
+                ),
+              ],
             ),
           ),
           
@@ -79,7 +118,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             alignment: Alignment.bottomCenter,
             child: SingleChildScrollView(
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.75,
+                constraints: BoxConstraints(
+                  minHeight: screenHeight * 0.65,
+                ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
@@ -88,24 +129,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new, color: kPrimaryColor),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const Text('Buat Akun Baru', style: kHeaderStyle),
-                        const SizedBox(width: 48),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
                     const Text(
-                      'Mulai kelola pantry Anda hari ini.',
+                      'Create new account', 
+                      style: kHeaderStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Start your pantry journey with us!',
                       textAlign: TextAlign.center,
                       style: kSubHeaderStyle,
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 40),
 
                     TextField(
                       controller: _usernameController,
@@ -115,6 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -124,6 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -141,7 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 40),
 
                     ElevatedButton(
                       onPressed: _isLoading ? null : _signUp,
