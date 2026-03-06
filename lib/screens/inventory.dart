@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
-import '../widgets/add_edit_item.dart';
+import '../widgets/alter_item.dart';
+import '../styles/style.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -17,13 +18,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
   String _selectedCategory = 'Semua';
   String _sortBy = 'Terdekat Expired';
 
-  // Warna Utama Pantryon
-  final Color kPrimaryColor = const Color(0xFFFF9800);
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50, // Background abu-abu sangat terang agar kartu putih lebih menonjol
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('Inventory Pantry', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: kPrimaryColor,
@@ -37,13 +36,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ),
       body: Column(
         children: [
-          // 1. Header Seamless (Search Bar dengan latar oranye menyatu dengan AppBar)
           _buildSeamlessHeader(),
-          
-          // 2. Kategori Filter (Pill design modern)
           _buildCategoryFilter(),
           
-          // 3. Daftar Item (Kartu mengambang)
           Expanded(
             child: _buildItemsList(),
           ),
@@ -59,13 +54,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- WIDGET: Header & Search Bar ---
+  // Header & Search Bar
   Widget _buildSeamlessHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: BoxDecoration(
         color: kPrimaryColor,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)), // Lengkungan di bawah header
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)), 
         boxShadow: [
           BoxShadow(color: kPrimaryColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -88,7 +83,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- WIDGET: Category Filter ---
+  // Category Filter
   Widget _buildCategoryFilter() {
     return Consumer<PantryProvider>(
       builder: (context, provider, child) {
@@ -125,7 +120,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       color: isSelected ? kPrimaryColor : Colors.grey.shade300,
                     ),
                   ),
-                  showCheckmark: false, // Menghilangkan centang default agar lebih bersih
+                  showCheckmark: false, 
                 ),
               );
             },
@@ -135,13 +130,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- WIDGET: Items List ---
+  // Items List 
   Widget _buildItemsList() {
     return Consumer<PantryProvider>(
       builder: (context, provider, child) {
         List<PantryItem> items = provider.items;
         
-        // Filter Search & Category
         if (_searchQuery.isNotEmpty) {
           items = provider.searchItems(_searchQuery);
         }
@@ -149,7 +143,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
           items = items.where((item) => item.category == _selectedCategory).toList();
         }
         
-        // Sorting
         items = provider.sortItems(items, _sortBy);
         
         if (items.isEmpty) {
@@ -157,7 +150,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         }
         
         return ListView.builder(
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 80), // Bottom padding untuk FAB
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 80), 
           itemCount: items.length,
           itemBuilder: (context, index) {
             return _buildItemCard(items[index], provider);
@@ -167,7 +160,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- WIDGET: Item Card ---
+  // Item Card 
   Widget _buildItemCard(PantryItem item, PantryProvider provider) {
     Color statusColor;
     Color statusBgColor;
@@ -201,7 +194,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Ikon Kategori Bulat
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -212,7 +204,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ),
                 const SizedBox(width: 16),
                 
-                // Info Utama (Nama, Jumlah, Kategori)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +224,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ),
                 ),
                 
-                // Info Expired & Tombol Hapus
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -265,7 +255,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- WIDGET: Empty State ---
+  // Empty State 
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -294,7 +284,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  // --- LOGIKA & DIALOG ---
+  // Other Logic
   void _showSortOptions() {
     showModalBottomSheet(
       context: context,
@@ -338,11 +328,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   void _showAddItemDialog(BuildContext context) {
-    showDialog(context: context, builder: (context) => const AddEditItemDialog());
+    showDialog(context: context, builder: (context) => const AlterItem());
   }
 
   void _showEditItemDialog(BuildContext context, PantryItem item) {
-    showDialog(context: context, builder: (context) => AddEditItemDialog(item: item));
+    showDialog(context: context, builder: (context) => AlterItem(item: item));
   }
 
   void _confirmDelete(BuildContext context, PantryItem item, PantryProvider provider) {
