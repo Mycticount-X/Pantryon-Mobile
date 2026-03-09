@@ -24,7 +24,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
-    final username = user?.email?.split('@')[0] ?? 'Pantryoners';
+    final username = user?.email?.split('@')[0] ?? 'Mikhail';
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -43,15 +43,15 @@ class DashboardScreen extends StatelessWidget {
       body: Consumer<PantryProvider>(
         builder: (context, provider, child) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildWelcomeCard(username),
-                const SizedBox(height: 24),
+                _buildGreeting(username),
+                const SizedBox(height: 16),
                 
-                _buildStatisticsCards(provider),
-                const SizedBox(height: 24),
+                _buildUnifiedStatCard(provider),
+                const SizedBox(height: 32),
                 
                 _buildExpiringSoonSection(context, provider),
               ],
@@ -73,7 +73,24 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard(String username) {
+  Widget _buildGreeting(String username) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Welcome Back,',
+          style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          username,
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF424242)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUnifiedStatCard(PantryProvider provider) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -83,84 +100,72 @@ class DashboardScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: const Color(0xFFFF9800).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6)),
+          BoxShadow(color: const Color(0xFFFF9800).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Halo, $username! 👋',
-            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          const Text(
+            'Pantry Summary',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'Kelola stok makanan Anda agar tidak ada yang terbuang sia-sia.',
-            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14, height: 1.5),
+            'Last Updated: ${DateFormat('dd MMM yyyy, HH:mm').format(DateTime.now())}',
+            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13),
+          ),
+          const SizedBox(height: 32),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildUnifiedStatItem(
+                provider.totalItems.toString(),
+                'Total Item',
+                Icons.inventory_2_rounded,
+              ),
+              _buildUnifiedStatItem(
+                provider.expiringSoonCount.toString(),
+                'Warning',
+                Icons.warning_amber_rounded,
+              ),
+              _buildUnifiedStatItem(
+                provider.expiredItemsCount.toString(),
+                'Expired',
+                Icons.error_outline_rounded,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatisticsCards(PantryProvider provider) {
-    return Row(
+  Widget _buildUnifiedStatItem(String value, String label, IconData icon) {
+    return Column(
       children: [
-        Expanded(
-          child: _buildStatCard(
-            'Total Item',
-            provider.totalItems.toString(),
-            Icons.inventory_2_rounded,
-            const Color(0xFFFF9800),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            shape: BoxShape.circle,
           ),
+          child: Icon(icon, color: Colors.white, size: 28),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Segera Expired',
-            provider.expiringSoonCount.toString(),
-            Icons.warning_amber_rounded,
-            Colors.orange.shade700,
-          ),
+        const SizedBox(height: 12),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Expired',
-            provider.expiredItemsCount.toString(),
-            Icons.error_outline_rounded,
-            Colors.red.shade400,
-          ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 8, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(height: 12),
-          Text(value, style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 4),
-          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
-        ],
-      ),
     );
   }
 
@@ -171,19 +176,66 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('Perhatian Khusus ⚠️', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF424242))),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.timer_outlined,
+                color: Colors.red.shade400,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            
+            const Text(
+              'To Be Expired', 
+              style: TextStyle(
+                fontSize: 20, 
+                fontWeight: FontWeight.bold, 
+                color: Color(0xFF424242)
+              ),
+            ),
+            
+            const Spacer(),
+            
             if (expiringItems.isNotEmpty)
-              TextButton(
-                onPressed: () {
+              InkWell(
+                onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const InventoryScreen()));
                 },
-                child: const Text('Lihat Semua', style: TextStyle(color: Color(0xFFFF9800), fontWeight: FontWeight.bold)),
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'View All', 
+                        style: TextStyle(
+                          color: Color(0xFFFF9800), 
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        )
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded, 
+                        size: 14, 
+                        color: const Color(0xFFFF9800),
+                      ),
+                    ],
+                  ),
+                ),
               ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
+        
         expiringItems.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
@@ -207,9 +259,9 @@ class DashboardScreen extends StatelessWidget {
         children: [
           Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.green.shade50, shape: BoxShape.circle), child: Icon(Icons.check_circle_outline, size: 48, color: Colors.green.shade400)),
           const SizedBox(height: 16),
-          const Text('Semua Aman Terkendali!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text('All Items Safe and Controlled!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Tidak ada stok makanan yang akan expired dalam 7 hari ke depan.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: Colors.grey.shade500, height: 1.5)),
+          Text('There are no food items that will expire within the next 7 days.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: Colors.grey.shade500, height: 1.5)),
         ],
       ),
     );
@@ -218,7 +270,7 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildExpiringItemCard(PantryItem item) {
     Color statusColor = item.isExpired ? Colors.red.shade500 : Colors.orange.shade500;
     Color statusBgColor = item.isExpired ? Colors.red.shade50 : Colors.orange.shade50;
-    String statusText = item.isExpired ? 'Expired' : (item.daysUntilExpiry == 0 ? 'Hari ini' : '${item.daysUntilExpiry} hari lagi');
+    String statusText = item.isExpired ? 'Expired' : (item.daysUntilExpiry == 0 ? 'Today' : '${item.daysUntilExpiry} days left');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
