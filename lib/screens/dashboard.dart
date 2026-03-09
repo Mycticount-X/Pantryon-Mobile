@@ -7,8 +7,42 @@ import '../models/pantry_item.dart';
 import 'login.dart';
 import 'inventory.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  String _username = 'Pantryoners';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        final data = await Supabase.instance.client
+            .from('profiles')
+            .select('username')
+            .eq('id', userId)
+            .single();
+        
+        if (mounted) {
+          setState(() {
+            _username = data['username'] ?? 'User';
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Gagal mengambil profil: $e');
+    }
+  }
 
   Future<void> _signOut(BuildContext context) async {
     await Supabase.instance.client.auth.signOut();
@@ -23,9 +57,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-    final username = user?.email?.split('@')[0] ?? 'Mikhail';
-
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -47,7 +78,7 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildGreeting(username),
+                _buildGreeting(_username),
                 const SizedBox(height: 16),
                 
                 _buildUnifiedStatCard(provider),
