@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/pantry_provider.dart';
@@ -59,7 +60,6 @@ class _AlterItemState extends State<AlterItem> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 Text(
                   isEditing ? 'Edit Item' : 'Tambah Item Baru',
                   style: const TextStyle(
@@ -69,9 +69,9 @@ class _AlterItemState extends State<AlterItem> {
                 ),
                 const SizedBox(height: 20),
 
-                // Name Field
                 TextFormField(
                   controller: _nameController,
+                  maxLength: 40, 
                   decoration: InputDecoration(
                     labelText: 'Nama Item',
                     hintText: 'Contoh: Tomat',
@@ -79,9 +79,10 @@ class _AlterItemState extends State<AlterItem> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    counterText: '',
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return 'Nama item tidak boleh kosong';
                     }
                     return null;
@@ -89,15 +90,17 @@ class _AlterItemState extends State<AlterItem> {
                 ),
                 const SizedBox(height: 16),
 
-                // Quantity and Unit Row
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Quantity
                     Expanded(
                       flex: 2,
                       child: TextFormField(
                         controller: _quantityController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: InputDecoration(
                           labelText: 'Jumlah',
                           prefixIcon: const Icon(Icons.numbers),
@@ -107,10 +110,17 @@ class _AlterItemState extends State<AlterItem> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Jumlah tidak boleh kosong';
+                            return 'Wajib diisi';
                           }
-                          if (int.tryParse(value) == null) {
-                            return 'Masukkan angka yang valid';
+                          final intValue = int.tryParse(value);
+                          if (intValue == null) {
+                            return 'Angka tidak valid';
+                          }
+                          if (intValue <= 0) {
+                            return 'Harus lebih dari 0';
+                          }
+                          if (intValue > 9999) {
+                            return 'Maksimal 9999';
                           }
                           return null;
                         },
@@ -240,7 +250,7 @@ class _AlterItemState extends State<AlterItem> {
       context: context,
       initialDate: _expiryDate,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 5)), 
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(

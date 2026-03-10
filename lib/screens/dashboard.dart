@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
-import 'login.dart';
 import 'inventory.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -44,33 +43,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    await Supabase.instance.client.auth.signOut();
-    if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: const Color(0xFFFF9800),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Keluar',
-            onPressed: () => _signOut(context),
-          )
-        ],
-      ),
       body: Consumer<PantryProvider>(
         builder: (context, provider, child) {
           return SingleChildScrollView(
@@ -97,6 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 24),
         Text(
           'Welcome Back,',
           style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
