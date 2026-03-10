@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import './providers/pantry_provider.dart';
 import './screens/login.dart';
-import './screens/dashboard.dart';
+import './wrapper/main_wrapper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
       // Auth Gate
       home: Supabase.instance.client.auth.currentSession == null
           ? const LoginScreen()
-          : const DashboardScreen(),
+          : const MainWrapper(),
     );
   }
 }

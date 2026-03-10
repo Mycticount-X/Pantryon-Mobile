@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../styles/style.dart';
-import 'dashboard.dart';
+import '../wrapper/main_wrapper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -37,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const MainWrapper()), 
             (route) => false, 
           );
         }

@@ -90,17 +90,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const InventoryScreen()),
-          );
-        },
-        backgroundColor: const Color(0xFFFF9800),
-        icon: const Icon(Icons.inventory_2_outlined, color: Colors.white),
-        label: const Text('Buka Inventory', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
     );
   }
 
