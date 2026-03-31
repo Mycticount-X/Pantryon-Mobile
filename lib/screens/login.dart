@@ -32,7 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Gagal masuk. Periksa email dan password Anda.');
+        // _showErrorSnackBar('Gagal masuk. Periksa email dan password Anda.');
+        _showErrorSnackBar('Error: ${e.toString()}');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
