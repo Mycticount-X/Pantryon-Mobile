@@ -224,6 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: 'Ubah nama dan info pribadi',
             onTap: () {
               // TODO: Navigasi ke halaman edit profil nanti
+              ScaffoldMessenger.of(context).clearSnackBars(); 
+              
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Fitur Edit Profil segera hadir!')),
               );
@@ -235,7 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Bantuan & Dukungan',
             subtitle: 'Hubungi kami jika ada masalah',
             onTap: () {
-               ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).clearSnackBars();
+              
+              ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Pantryon Support v1.0')),
               );
             },
