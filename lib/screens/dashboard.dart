@@ -88,9 +88,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildUnifiedStatCard(PantryProvider provider) {
+    final int freshCount = provider.totalItems - provider.expiringSoonCount - provider.expiredItemsCount;
+
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFFF9800), Color(0xFFFFB74D)],
@@ -102,55 +102,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BoxShadow(color: const Color(0xFFFF9800).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Pantry Summary',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const InventoryScreen()),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pantry Summary',
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Last Updated: ${DateFormat('dd MMM yyyy, HH:mm').format(DateTime.now())}',
+                          style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    Icon(Icons.arrow_forward_ios_rounded, color: Colors.white.withOpacity(0.8), size: 18),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    // Item Fresh 
+                    _buildUnifiedStatItem(
+                      freshCount.toString(),
+                      'Fresh',
+                      Icons.eco_outlined,
+                      Colors.green.shade500,
+                    ),
+                    // To Be Expired 
+                    _buildUnifiedStatItem(
+                      provider.expiringSoonCount.toString(),
+                      'Warning',
+                      Icons.timer_outlined,
+                      Colors.orange.shade500,
+                    ),
+                    // Expired 
+                    _buildUnifiedStatItem(
+                      provider.expiredItemsCount.toString(),
+                      'Expired',
+                      Icons.error_outline_rounded,
+                      Colors.red.shade500,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Last Updated: ${DateFormat('dd MMM yyyy, HH:mm').format(DateTime.now())}',
-            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13),
-          ),
-          const SizedBox(height: 32),
-          
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildUnifiedStatItem(
-                provider.totalItems.toString(),
-                'Total Item',
-                Icons.inventory_2_rounded,
-              ),
-              _buildUnifiedStatItem(
-                provider.expiringSoonCount.toString(),
-                'Warning',
-                Icons.warning_amber_rounded,
-              ),
-              _buildUnifiedStatItem(
-                provider.expiredItemsCount.toString(),
-                'Expired',
-                Icons.error_outline_rounded,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildUnifiedStatItem(String value, String label, IconData icon) {
+  Widget _buildUnifiedStatItem(String value, String label, IconData icon, Color iconColor) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+          decoration: const BoxDecoration(
+            color: Colors.white,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Colors.white, size: 28),
+          child: Icon(icon, color: iconColor, size: 28),
         ),
         const SizedBox(height: 12),
         Text(

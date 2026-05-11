@@ -193,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildStatItem(
                 'Fresh', 
                 freshCount.toString(), 
-                Icons.eco_outlined, // Ikon daun melambangkan kesegaran
+                Icons.eco_outlined, 
                 Colors.green.shade500,
               ),
               
