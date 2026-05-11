@@ -4,10 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
-import 'inventory.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final VoidCallback onNavigateToInventory;
+  const DashboardScreen({super.key, required this.onNavigateToInventory});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -108,10 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InventoryScreen()),
-            );
+            widget.onNavigateToInventory();
           },
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -236,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (expiringItems.isNotEmpty)
               InkWell(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const InventoryScreen()));
+                  widget.onNavigateToInventory();
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
