@@ -18,6 +18,27 @@ class _InventoryScreenState extends State<InventoryScreen> {
   String _selectedCategory = 'Semua';
   String _sortBy = 'Terdekat Expired';
 
+  String _formatExpiryTime(int totalDays) {
+    if (totalDays < 0) return 'Expired';
+    if (totalDays == 0) return 'Hari ini';
+
+    int years = totalDays ~/ 365;
+    int remainingAfterYears = totalDays % 365;
+    int months = remainingAfterYears ~/ 30;
+    int days = remainingAfterYears % 30;
+
+    if (years > 0) {
+      return months > 0 ? '$years thn $months bln' : '$years tahun';
+    } 
+    
+    else if (months > 0) {
+      return days > 0 ? '$months bln $days hr' : '$months bulan';
+    } 
+    
+    else {
+      return '$days hari';
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -280,7 +301,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: statusBgColor, borderRadius: BorderRadius.circular(8)),
                       child: Text(
-                        item.isExpired ? 'Expired' : item.daysUntilExpiry == 0 ? 'Hari ini' : '${item.daysUntilExpiry} hari',
+                        _formatExpiryTime(item.daysUntilExpiry),
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: statusColor),
                       ),
                     ),
