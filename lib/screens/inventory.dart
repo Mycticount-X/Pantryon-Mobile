@@ -209,8 +209,57 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF424242))),
-                      const SizedBox(height: 4),
-                      Text('${item.quantity} ${item.unit}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      // Text('${item.quantity} ${item.unit}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                      
+                      Row(
+                        children: [
+                          // Button Minus (-)
+                          InkWell(
+                            onTap: () {
+                              if (item.quantity > 1) {
+                                provider.updateItem(item.id, item.copyWith(quantity: item.quantity - 1));
+                              } else {
+                                _confirmDelete(context, item, provider);
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(Icons.remove, size: 16, color: Colors.grey.shade700),
+                            ),
+                          ),
+                          
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              '${item.quantity} ${item.unit}', 
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w600)
+                            ),
+                          ),
+                          
+                          // Button Plus (+)
+                          InkWell(
+                            onTap: () {
+                              provider.updateItem(item.id, item.copyWith(quantity: item.quantity + 1));
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: kPrimaryColor.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(Icons.add, size: 16, color: kPrimaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
