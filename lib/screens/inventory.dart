@@ -400,6 +400,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
             onPressed: () {
               provider.deleteItem(item.id);
               Navigator.pop(context);
+              ScaffoldMessenger.of(context).clearSnackBars();
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('${item.name} dihapus.'),
