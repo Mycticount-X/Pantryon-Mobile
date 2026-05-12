@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
+import '../screens/barcode_scanner.dart';
 
 class AlterItem extends StatefulWidget {
   final PantryItem? item;
@@ -23,6 +24,37 @@ class _AlterItemState extends State<AlterItem> {
   late DateTime _expiryDate;
 
   bool get isEditing => widget.item != null;
+
+  Future<void> _scanBarcode(BuildContext context) async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
+    );
+
+    if (result != null && result['found'] == true && mounted) {
+      final provider = Provider.of<PantryProvider>(context, listen: false);
+      
+      setState(() {
+        _nameController.text = result['product_name'] ?? '';
+        
+        if (result['unit'] != null && provider.units.contains(result['unit'])) {
+          _selectedUnit = result['unit'];
+        }
+        
+        if (result['category'] != null && provider.categories.contains(result['category'])) {
+          _selectedCategory = result['category'];
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Data otomatis terisi dari barcode!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
 
   @override
   void initState() {
@@ -76,6 +108,11 @@ class _AlterItemState extends State<AlterItem> {
                     labelText: 'Nama Item',
                     hintText: 'Contoh: Tomat',
                     prefixIcon: const Icon(Icons.shopping_basket),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.qr_code_scanner, color: Color(0xFFFF9800)),
+                      tooltip: 'Scan Barcode',
+                      onPressed: () => _scanBarcode(context),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
