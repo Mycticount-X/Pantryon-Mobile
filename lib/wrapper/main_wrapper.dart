@@ -13,12 +13,6 @@ class MainWrapper extends StatefulWidget {
 class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const InventoryScreen(),
-    const ProfileScreen(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -27,8 +21,20 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      DashboardScreen(
+        onNavigateToInventory: () {
+          setState(() {
+            _selectedIndex = 1; 
+          });
+        },
+      ),
+      const InventoryScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

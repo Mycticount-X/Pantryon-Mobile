@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Profil Saya', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(' ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: kPrimaryColor,
         elevation: 0,
         centerTitle: true,
@@ -173,8 +173,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMiniStatsCard() {
     return Consumer<PantryProvider>(
       builder: (context, provider, child) {
+        
+        // Logika untuk menghitung barang yang kondisinya masih segar (Fresh)
+        final int freshCount = provider.totalItems - provider.expiringSoonCount - provider.expiredItemsCount;
+
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8), // Sedikit penyesuaian padding agar muat 3 item
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -183,11 +187,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildStatItem('Total Stok', provider.totalItems.toString(), Icons.inventory_2_outlined, kPrimaryColor),
-              Container(width: 1, height: 40, color: Colors.grey.shade200),
-              _buildStatItem('Kategori', provider.categories.length.toString(), Icons.category_outlined, Colors.blue.shade400),
+              // 1. Item Fresh (Hijau)
+              _buildStatItem(
+                'Fresh', 
+                freshCount.toString(), 
+                Icons.eco_outlined, 
+                Colors.green.shade500,
+              ),
+              
+              Container(width: 1, height: 40, color: Colors.grey.shade200), // Garis pembatas
+              
+              // 2. To Be Expired / Warning (Oranye)
+              _buildStatItem(
+                'Warning', 
+                provider.expiringSoonCount.toString(), 
+                Icons.timer_outlined, 
+                Colors.orange.shade500,
+              ),
+              
+              Container(width: 1, height: 40, color: Colors.grey.shade200), // Garis pembatas
+              
+              // 3. Expired (Merah)
+              _buildStatItem(
+                'Expired', 
+                provider.expiredItemsCount.toString(), 
+                Icons.error_outline_rounded, 
+                Colors.red.shade500,
+              ),
             ],
           ),
         );
@@ -224,6 +252,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: 'Ubah nama dan info pribadi',
             onTap: () {
               // TODO: Navigasi ke halaman edit profil nanti
+              ScaffoldMessenger.of(context).clearSnackBars(); 
+              
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Fitur Edit Profil segera hadir!')),
               );
@@ -235,7 +265,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Bantuan & Dukungan',
             subtitle: 'Hubungi kami jika ada masalah',
             onTap: () {
-               ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).clearSnackBars();
+              
+              ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Pantryon Support v1.0')),
               );
             },

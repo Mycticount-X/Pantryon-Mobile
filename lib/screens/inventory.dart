@@ -18,6 +18,27 @@ class _InventoryScreenState extends State<InventoryScreen> {
   String _selectedCategory = 'Semua';
   String _sortBy = 'Terdekat Expired';
 
+  String _formatExpiryTime(int totalDays) {
+    if (totalDays < 0) return 'Expired';
+    if (totalDays == 0) return 'Hari ini';
+
+    int years = totalDays ~/ 365;
+    int remainingAfterYears = totalDays % 365;
+    int months = remainingAfterYears ~/ 30;
+    int days = remainingAfterYears % 30;
+
+    if (years > 0) {
+      return months > 0 ? '$years thn $months bln' : '$years tahun';
+    } 
+    
+    else if (months > 0) {
+      return days > 0 ? '$months bln $days hr' : '$months bulan';
+    } 
+    
+    else {
+      return '$days hari';
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -209,8 +230,57 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF424242))),
-                      const SizedBox(height: 4),
-                      Text('${item.quantity} ${item.unit}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      // Text('${item.quantity} ${item.unit}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                      
+                      Row(
+                        children: [
+                          // Button Minus (-)
+                          InkWell(
+                            onTap: () {
+                              if (item.quantity > 1) {
+                                provider.updateItem(item.id, item.copyWith(quantity: item.quantity - 1));
+                              } else {
+                                _confirmDelete(context, item, provider);
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(Icons.remove, size: 16, color: Colors.grey.shade700),
+                            ),
+                          ),
+                          
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              '${item.quantity} ${item.unit}', 
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w600)
+                            ),
+                          ),
+                          
+                          // Button Plus (+)
+                          InkWell(
+                            onTap: () {
+                              provider.updateItem(item.id, item.copyWith(quantity: item.quantity + 1));
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: kPrimaryColor.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(Icons.add, size: 16, color: kPrimaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -231,7 +301,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(color: statusBgColor, borderRadius: BorderRadius.circular(8)),
                       child: Text(
-                        item.isExpired ? 'Expired' : item.daysUntilExpiry == 0 ? 'Hari ini' : '${item.daysUntilExpiry} hari',
+                        _formatExpiryTime(item.daysUntilExpiry),
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: statusColor),
                       ),
                     ),
@@ -351,6 +421,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
             onPressed: () {
               provider.deleteItem(item.id);
               Navigator.pop(context);
+              ScaffoldMessenger.of(context).clearSnackBars();
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('${item.name} dihapus.'),
