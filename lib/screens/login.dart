@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../styles/style.dart'; 
+import '../navigation/app_page_transitions.dart';
+import '../styles/style.dart';
 import 'register.dart';
 import '../wrapper/main_wrapper.dart';
 
@@ -27,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainWrapper()),
+          AppPageRoute(builder: (context) => const MainWrapper()),
         );
       }
     } catch (e) {
@@ -182,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+                        Navigator.push(context, AppPageRoute(builder: (context) => const RegisterScreen()));
                       },
                       child: const Text('Belum punya akun? Daftar di sini', style: kLinkTextStyle),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import './navigation/app_page_transitions.dart';
 import './providers/pantry_provider.dart';
 import './screens/login.dart';
 import './wrapper/main_wrapper.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xFFFF9800),
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF9800)),
+        pageTransitionsTheme: kAppPageTransitionsTheme,
       ),
       
       // Auth Gate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../navigation/app_page_transitions.dart';
 import '../styles/style.dart';
 import '../wrapper/main_wrapper.dart';
 
@@ -37,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const MainWrapper()), 
+            AppPageRoute(builder: (context) => const MainWrapper()), 
             (route) => false, 
           );
         }

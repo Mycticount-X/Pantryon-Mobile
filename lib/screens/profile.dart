@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../navigation/app_page_transitions.dart';
 import '../providers/pantry_provider.dart';
 import 'login.dart';
 
@@ -82,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          AppPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
         );
       }
