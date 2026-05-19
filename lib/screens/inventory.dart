@@ -155,7 +155,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Widget _buildItemsList() {
     return Consumer<PantryProvider>(
       builder: (context, provider, child) {
-        List<PantryItem> items = provider.items;
+        List<PantryItem> items = provider.filteredByStatusItems;
         
         if (_searchQuery.isNotEmpty) {
           items = provider.searchItems(_searchQuery);
@@ -375,6 +375,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 _buildSortOption('Nama A-Z', Icons.sort_by_alpha),
                 _buildSortOption('Kategori', Icons.category_outlined),
                 _buildSortOption('Terbaru Ditambah', Icons.new_releases_outlined),
+                const Divider(),
+                _buildSortOption('Fresh', Icons.eco_outlined),
+                _buildSortOption('Warning', Icons.timer_outlined),
+                _buildSortOption('Expired', Icons.error_outline_rounded),
+                _buildSortOption('Semua', Icons.all_inclusive),
               ],
             ),
           ),
@@ -384,14 +389,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildSortOption(String option, IconData icon) {
-    final isSelected = _sortBy == option;
+    final provider = Provider.of<PantryProvider>(context, listen: false);
+    final bool isStatusOption = ['Fresh', 'Warning', 'Expired', 'Semua'].contains(option);
+    final isSelected = isStatusOption ? provider.statusFilter == option : _sortBy == option;
+
     return ListTile(
       leading: Icon(icon, color: isSelected ? kPrimaryColor : Colors.grey.shade600),
       title: Text(option, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? kPrimaryColor : Colors.black87)),
       trailing: isSelected ? Icon(Icons.check_circle, color: kPrimaryColor) : null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onTap: () {
-        setState(() => _sortBy = option);
+        if (isStatusOption) {
+          provider.setStatusFilter(option);
+        } else {
+          setState(() => _sortBy = option);
+        }
         Navigator.pop(context);
       },
     );
