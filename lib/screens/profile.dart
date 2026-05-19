@@ -5,7 +5,8 @@ import '../providers/pantry_provider.dart';
 import 'login.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback onNavigateToInventory;
+  const ProfileScreen({super.key, required this.onNavigateToInventory});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -91,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -195,6 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 freshCount.toString(), 
                 Icons.eco_outlined, 
                 Colors.green.shade500,
+                context, 
               ),
               
               Container(width: 1, height: 40, color: Colors.grey.shade200), // Garis pembatas
@@ -205,6 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 provider.expiringSoonCount.toString(), 
                 Icons.timer_outlined, 
                 Colors.orange.shade500,
+                context, 
               ),
               
               Container(width: 1, height: 40, color: Colors.grey.shade200), // Garis pembatas
@@ -215,6 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 provider.expiredItemsCount.toString(), 
                 Icons.error_outline_rounded, 
                 Colors.red.shade500,
+                context, 
               ),
             ],
           ),
@@ -223,8 +228,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
-    return Column(
+  Widget _buildStatItem(String label, String value, IconData icon, Color color, BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        Provider.of<PantryProvider>(context, listen: false).setStatusFilter(label);
+        widget.onNavigateToInventory();
+      }, 
+    child: Column(
       children: [
         Icon(icon, color: color, size: 28),
         const SizedBox(height: 8),
@@ -232,6 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 4),
         Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
       ],
+    ), 
     );
   }
 
