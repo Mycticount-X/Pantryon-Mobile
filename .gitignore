@@ -47,3 +47,11 @@ app.*.map.json
 
 # Env
 *.env
+
+# Tambahkan ini jika belum ada
+.vscode/
+pubspec.lock
+
+# Abaikan file generated plugins untuk semua platform
+**/generated_plugin_registrant.*
+**/generated_plugins.*
