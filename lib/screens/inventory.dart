@@ -167,7 +167,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         items = provider.sortItems(items, _sortBy);
         
         if (items.isEmpty) {
-          return _buildEmptyState();
+          return _buildEmptyState(provider);
         }
         
         return ListView.builder(
@@ -326,7 +326,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   // Empty State 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(PantryProvider provider) {
+    final bool hasActiveFilter = provider.statusFilter != 'Semua' || _selectedCategory != 'Semua';
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -334,21 +336,41 @@ class _InventoryScreenState extends State<InventoryScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(color: kPrimaryColor.withOpacity(0.1), shape: BoxShape.circle),
-            child: Icon(Icons.kitchen_outlined, size: 64, color: kPrimaryColor),
+            child: Icon(hasActiveFilter ? Icons.filter_alt_off_outlined : Icons.kitchen_outlined, size: 64, color: kPrimaryColor),
           ),
           const SizedBox(height: 24),
           Text(
-            'Pantry Kosong',
+            hasActiveFilter ? 'Hasil Filter Kosong' : 'Pantry Kosong',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
           ),
           const SizedBox(height: 8),
           Text(
             _searchQuery.isNotEmpty
                 ? 'Tidak ada item bernama "$_searchQuery"'
-                : 'Mulai isi pantry Anda dengan menekan\ntombol Tambah di bawah.',
+                : hasActiveFilter
+                    ? 'Tidak ada item yang sesuai dengan filter Anda.'
+                    : 'Mulai isi pantry Anda dengan menekan\ntombol Tambah di bawah.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500, height: 1.5),
           ),
+          
+          if (hasActiveFilter) ...[
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() => _selectedCategory = 'Semua');
+                provider.setStatusFilter('Semua');
+              },
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Tampilkan Semua Barang', style: TextStyle(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kPrimaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ]
         ],
       ),
     );
