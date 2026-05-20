@@ -142,21 +142,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     // Item Fresh 
                     _buildUnifiedStatItem(
-                      freshCount.toString(),
+                      freshCount,
                       'Fresh',
                       Icons.eco_outlined,
                       Colors.green.shade500,
                     ),
-                    // To Be Expired 
+                    // To Be Expired
                     _buildUnifiedStatItem(
-                      provider.expiringSoonCount.toString(),
+                      provider.expiringSoonCount,
                       'Warning',
                       Icons.timer_outlined,
                       Colors.orange.shade500,
                     ),
-                    // Expired 
+                    // Expired
                     _buildUnifiedStatItem(
-                      provider.expiredItemsCount.toString(),
+                      provider.expiredItemsCount,
                       'Expired',
                       Icons.error_outline_rounded,
                       Colors.red.shade500,
@@ -171,33 +171,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildUnifiedStatItem(String value, String label, IconData icon, Color iconColor) {
-    return InkWell( // Tambahkan InkWell biar bisa diklik
+  Widget _buildUnifiedStatItem(int count, String label, IconData icon, Color iconColor) {
+    return InkWell( 
+      borderRadius: BorderRadius.circular(16),
       onTap: () {
-        Provider.of<PantryProvider>(context, listen: false).setStatusFilter(label);
-        widget.onNavigateToInventory();
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+        final provider = Provider.of<PantryProvider>(context, listen: false);
+        
+        if (count == 0) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Stok $label kosong. Menampilkan semua barang.'),
+              backgroundColor: Colors.orange.shade600,
+              behavior: SnackBarBehavior.floating,
             ),
-            child: Icon(icon, color: iconColor, size: 28),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
-          ),
-        ],
+          );
+          provider.setStatusFilter('Semua');
+          widget.onNavigateToInventory();
+        } else {
+          provider.setStatusFilter(label);
+          widget.onNavigateToInventory();
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 28),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              count.toString(),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }

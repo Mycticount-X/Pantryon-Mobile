@@ -176,7 +176,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<PantryProvider>(
       builder: (context, provider, child) {
         
-        // Logika untuk menghitung barang yang kondisinya masih segar (Fresh)
         final int freshCount = provider.totalItems - provider.expiringSoonCount - provider.expiredItemsCount;
 
         return Container(
@@ -194,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 1. Item Fresh (Hijau)
               _buildStatItem(
                 'Fresh', 
-                freshCount.toString(), 
+                freshCount, 
                 Icons.eco_outlined, 
                 Colors.green.shade500,
                 context, 
@@ -205,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 2. To Be Expired / Warning (Oranye)
               _buildStatItem(
                 'Warning', 
-                provider.expiringSoonCount.toString(), 
+                provider.expiringSoonCount, 
                 Icons.timer_outlined, 
                 Colors.orange.shade500,
                 context, 
@@ -216,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // 3. Expired (Merah)
               _buildStatItem(
                 'Expired', 
-                provider.expiredItemsCount.toString(), 
+                provider.expiredItemsCount, 
                 Icons.error_outline_rounded, 
                 Colors.red.shade500,
                 context, 
@@ -228,22 +227,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color, BuildContext context) {
+  Widget _buildStatItem(String label, int count, IconData icon, Color color, BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        Provider.of<PantryProvider>(context, listen: false).setStatusFilter(label);
-        widget.onNavigateToInventory();
+        final provider = Provider.of<PantryProvider>(context, listen: false);
+        
+        if (count == 0) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Stok $label kosong. Menampilkan semua barang.'),
+              backgroundColor: Colors.orange.shade600,
+              behavior: SnackBarBehavior.floating, 
+            ),
+          );
+          provider.setStatusFilter('Semua');
+          widget.onNavigateToInventory();
+        } else {
+          // Jika ada isi: Pasang filter sesuai label, lalu navigasi
+          provider.setStatusFilter(label);
+          widget.onNavigateToInventory();
+        }
       }, 
-    child: Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF424242))),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-      ],
-    ), 
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(count.toString(), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF424242))),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          ],
+        ),
+      ), 
     );
   }
 
