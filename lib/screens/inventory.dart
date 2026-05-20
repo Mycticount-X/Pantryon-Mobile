@@ -356,11 +356,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   // Other Logic
   void _showSortOptions() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (context) {
-        return SafeArea(
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, 
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    builder: (context) {
+      return SafeArea(
+        child: SingleChildScrollView( 
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             child: Column(
@@ -369,13 +372,23 @@ class _InventoryScreenState extends State<InventoryScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(left: 16, bottom: 16),
-                  child: Text('Urutkan Berdasarkan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text('Urutkan Berdasarkan', 
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
                 _buildSortOption('Terdekat Expired', Icons.hourglass_bottom),
                 _buildSortOption('Nama A-Z', Icons.sort_by_alpha),
                 _buildSortOption('Kategori', Icons.category_outlined),
                 _buildSortOption('Terbaru Ditambah', Icons.new_releases_outlined),
-                const Divider(),
+                
+                const Divider(height: 32, thickness: 1.5, indent: 16, endIndent: 16),
+                const SizedBox(height: 8), 
+                
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, bottom: 16),
+                  child: Text('Filter Berdasarkan', 
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                
                 _buildSortOption('Fresh', Icons.eco_outlined),
                 _buildSortOption('Warning', Icons.timer_outlined),
                 _buildSortOption('Expired', Icons.error_outline_rounded),
@@ -383,10 +396,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   Widget _buildSortOption(String option, IconData icon) {
     final provider = Provider.of<PantryProvider>(context, listen: false);
