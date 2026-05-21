@@ -22,16 +22,20 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    void navigateToInventory() {
+      setState(() {
+        _selectedIndex = 1;
+      });
+    }
+
     final List<Widget> screens = [
       DashboardScreen(
-        onNavigateToInventory: () {
-          setState(() {
-            _selectedIndex = 1; 
-          });
-        },
+        onNavigateToInventory: navigateToInventory,
       ),
       const InventoryScreen(),
-      const ProfileScreen(),
+      ProfileScreen(
+        onNavigateToInventory: navigateToInventory,
+      ),
     ];
 
     return Scaffold(

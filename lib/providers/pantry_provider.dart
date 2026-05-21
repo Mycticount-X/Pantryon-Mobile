@@ -4,6 +4,23 @@ import '../models/pantry_item.dart';
 
 class PantryProvider extends ChangeNotifier {
   List<PantryItem> _items = [];
+  String _statusFilter = 'Semua';
+  String get statusFilter => _statusFilter;
+
+  void setStatusFilter(String status) {
+    _statusFilter = status;
+    notifyListeners();
+  }
+
+  List<PantryItem> get filteredByStatusItems {
+    if (_statusFilter == 'Semua') return _items;
+    return _items.where((item) {
+      if (_statusFilter == 'Fresh') return !item.isExpired && !item.isExpiringSoon;
+      if (_statusFilter == 'Warning') return item.isExpiringSoon;
+      if (_statusFilter == 'Expired') return item.isExpired;
+      return true;
+    }).toList();
+  }
   bool _isLoading = false;
 
   List<PantryItem> get items => List.unmodifiable(_items);
