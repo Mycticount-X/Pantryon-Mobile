@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../navigation/app_page_transitions.dart';
 import '../screens/dashboard.dart';
 import '../screens/inventory.dart';
 import '../screens/profile.dart';
@@ -39,18 +38,7 @@ class _MainWrapperState extends State<MainWrapper> {
     ];
 
     return Scaffold(
-      body: AnimatedSwitcher(
-        duration: kAppTabTransitionDuration,
-        transitionBuilder: (child, animation) => buildAppTabTransition(
-          context,
-          animation: animation,
-          child: child,
-        ),
-        child: KeyedSubtree(
-          key: ValueKey<int>(_selectedIndex),
-          child: screens[_selectedIndex],
-        ),
-      ),
+      body: screens[_selectedIndex],
       
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
