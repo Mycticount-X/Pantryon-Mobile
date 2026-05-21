@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../navigation/app_page_transitions.dart';
 import '../providers/pantry_provider.dart';
+import 'edit_profile.dart';
 import 'login.dart';
+import 'support.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onNavigateToInventory;
@@ -281,13 +283,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.edit_outlined,
             title: 'Edit Profil',
             subtitle: 'Ubah nama dan info pribadi',
-            onTap: () {
-              // TODO: Navigasi ke halaman edit profil nanti
-              ScaffoldMessenger.of(context).clearSnackBars(); 
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur Edit Profil segera hadir!')),
+            onTap: () async {
+              final updated = await Navigator.push<bool>(
+                context,
+                AppPageRoute(builder: (context) => const EditProfilePage()),
               );
+              if (updated == true && mounted) {
+                _fetchUserProfile();
+              }
             },
           ),
           Divider(height: 1, color: Colors.grey.shade100, indent: 60),
@@ -296,10 +299,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Bantuan & Dukungan',
             subtitle: 'Hubungi kami jika ada masalah',
             onTap: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pantryon Support v1.0')),
+              Navigator.push(
+                context,
+                AppPageRoute(builder: (context) => const SupportPage()),
               );
             },
           ),
