@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
-import '../navigation/app_page_transitions.dart';
 import '../screens/barcode_scanner.dart';
 
 class AlterItem extends StatefulWidget {
@@ -29,7 +28,7 @@ class _AlterItemState extends State<AlterItem> {
   Future<void> _scanBarcode(BuildContext context) async {
     final result = await Navigator.push<Map<String, dynamic>>(
       context,
-      AppPageRoute(builder: (context) => const BarcodeScannerScreen()),
+      MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
     );
 
     if (result != null && result['found'] == true && mounted) {
