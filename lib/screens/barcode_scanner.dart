@@ -32,12 +32,6 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
             'unit': data['unit'],
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Barang tidak ditemukan di database. Silakan isi manual.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
           Navigator.pop(context, {'found': false});
         }
       }
@@ -83,7 +77,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-
+          
           if (_isProcessing)
             Container(
               color: Colors.black54,
