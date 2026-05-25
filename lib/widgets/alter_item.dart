@@ -31,27 +31,58 @@ class _AlterItemState extends State<AlterItem> {
       MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
     );
 
-    if (result != null && result['found'] == true && mounted) {
-      final provider = Provider.of<PantryProvider>(context, listen: false);
-      
-      setState(() {
-        _nameController.text = result['product_name'] ?? '';
+    if (result != null && mounted) {
+      if (result['found'] == true) {
+        final provider = Provider.of<PantryProvider>(context, listen: false);
         
-        if (result['unit'] != null && provider.units.contains(result['unit'])) {
-          _selectedUnit = result['unit'];
-        }
-        
-        if (result['category'] != null && provider.categories.contains(result['category'])) {
-          _selectedCategory = result['category'];
-        }
-      });
+        setState(() {
+          _nameController.text = result['product_name'] ?? '';
+          
+          if (result['unit'] != null && provider.units.contains(result['unit'])) {
+            _selectedUnit = result['unit'];
+          }
+          
+          if (result['category'] != null && provider.categories.contains(result['category'])) {
+            _selectedCategory = result['category'];
+          }
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data otomatis terisi dari barcode!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Data otomatis terisi dari barcode!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (result['found'] == false) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              icon: const Icon(Icons.warning_amber_rounded, size: 48, color: Color(0xFFFF9800)),
+              title: const Text('Barang Tidak Ditemukan', style: TextStyle(fontWeight: FontWeight.bold)),
+              content: const Text(
+                'Barcode ini belum terdaftar di database Pantryon. Silakan ketik nama barang secara manual.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black87),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF9800),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  child: const Text('Mengerti', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
@@ -108,6 +139,7 @@ class _AlterItemState extends State<AlterItem> {
                     labelText: 'Nama Item',
                     hintText: 'Contoh: Tomat',
                     prefixIcon: const Icon(Icons.shopping_basket),
+                    
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.qr_code_scanner, color: Color(0xFFFF9800)),
                       tooltip: 'Scan Barcode',
@@ -274,6 +306,7 @@ class _AlterItemState extends State<AlterItem> {
                     ),
                   ],
                 ),
+
               ],
             ),
           ),
