@@ -113,13 +113,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         title: const Text(
           'Edit Profil',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
         backgroundColor: kPrimaryColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
           onPressed: _isSaving ? null : () => Navigator.pop(context),
         ),
       ),
@@ -165,6 +165,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       );
     }
 
+    final cardDecoration = BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.08),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
       child: Form(
@@ -172,36 +184,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Informasi Akun
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+              decoration: cardDecoration,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Informasi Akun',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: kTextBlack,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    'Perbarui nama dan email Anda. Kosongkan password baru jika tidak ingin mengganti.',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    'Perbarui nama dan email Anda di bawah ini.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   TextFormField(
                     controller: _nameController,
                     textInputAction: TextInputAction.next,
@@ -224,16 +227,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     validator: (value) =>
                         _profileService.validateEmail(value ?? ''),
                   ),
-                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 20),
+            
+            // Ubah Password
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: cardDecoration,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   const Text(
-                    'Ubah Password (opsional)',
+                    'Ubah Password',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: kTextBlack,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Kosongkan password baru jika tidak ingin mengganti.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  ),
+                  const SizedBox(height: 20),
                   TextFormField(
                     controller: _oldPasswordController,
                     obscureText: _obscureOldPassword,
@@ -291,7 +311,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            
+            const SizedBox(height: 28),
+            
             ElevatedButton(
               onPressed: _isSaving ? null : _onConfirm,
               style: ElevatedButton.styleFrom(
@@ -300,7 +322,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                elevation: 4,
+                elevation: 2,
                 shadowColor: kPrimaryColor.withOpacity(0.3),
               ),
               child: _isSaving

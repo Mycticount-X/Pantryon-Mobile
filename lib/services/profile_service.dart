@@ -15,7 +15,6 @@ class ProfileServiceException implements Exception {
   String toString() => message;
 }
 
-/// Returned after a successful profile save.
 class ProfileUpdateResult {
   final bool emailConfirmationPending;
   final String? activeLoginEmail;
@@ -35,7 +34,6 @@ class ProfileService {
 
   final SupabaseClient _client;
 
-  /// Active login email kept while Supabase email change awaits confirmation.
   static String? _lockedActiveLoginEmail;
   static String? _pendingNewEmail;
 
@@ -73,7 +71,6 @@ class ProfileService {
     return user.email?.trim() ?? '';
   }
 
-  /// Verifies old password without leaving the session in a bad state on failure.
   Future<void> _verifyOldPassword({
     required String email,
     required String password,
@@ -102,7 +99,7 @@ class ProfileService {
     try {
       await _client.auth.setSession(refreshToken);
     } catch (_) {
-      // Best-effort: next Konfirmasi attempt reuses a restored session.
+      
     }
   }
 
@@ -117,7 +114,7 @@ class ProfileService {
         final refreshed = await _client.auth.getUser();
         user = refreshed.user ?? user;
       } catch (_) {
-        // Fall back to cached session user.
+        
       }
 
       final activeUser = user;
@@ -140,7 +137,6 @@ class ProfileService {
     }
   }
 
-  /// Returns null when valid, otherwise an error message.
   String? validateUsername(String value) {
     if (value.trim().isEmpty) {
       return 'Nama tidak boleh kosong.';
@@ -148,7 +144,6 @@ class ProfileService {
     return null;
   }
 
-  /// Returns null when valid, otherwise an error message.
   String? validateEmail(String value) {
     final email = value.trim();
     if (email.isEmpty) {
@@ -161,7 +156,6 @@ class ProfileService {
     return null;
   }
 
-  /// Returns null when valid, otherwise an error message.
   String? validatePasswordChange({
     required String? oldPassword,
     required String? newPassword,
@@ -219,7 +213,6 @@ class ProfileService {
         await _client.auth.updateUser(UserAttributes(password: newPass));
       }
 
-      // Keep profiles.email aligned with the active login email until confirmation completes.
       await _client.from('profiles').update({
         'username': trimmedUsername,
         'email': activeLoginEmail,

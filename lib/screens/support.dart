@@ -40,14 +40,14 @@ class SupportPage extends StatelessWidget {
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text(
-          'Support',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          'Bantuan & Dukungan',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
         ),
         backgroundColor: kPrimaryColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -70,42 +70,65 @@ class SupportPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: kPrimaryColor.withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.support_agent_rounded,
-                  color: kPrimaryColor,
-                  size: 32,
-                ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.support_agent_rounded,
+                      color: kPrimaryColor,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Butuh Bantuan?',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: kTextBlack,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Jika ada kendala silahkan hubungi kami.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: kTextGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Jika ada kendala silahkan hubungi kami.',
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: kTextBlack,
-                ),
-              ),
-              const SizedBox(height: 28),
-              _buildContactRow(
+              
+              const SizedBox(height: 32),
+              
+              _buildContactTile(
                 icon: Icons.phone_outlined,
-                label: 'Kontak kami:',
-                value: _phoneNumber,
+                title: 'Kontak Kami',
+                subtitle: _phoneNumber,
                 onTap: () => _launchUri(
                   context,
                   Uri.parse('tel:$_phoneNumber'),
                 ),
               ),
-              const SizedBox(height: 20),
-              _buildContactRow(
+              
+              Divider(height: 24, color: Colors.grey.shade100, indent: 56),
+              
+              _buildContactTile(
                 icon: Icons.email_outlined,
-                label: 'Email kami:',
-                value: _emailAddress,
+                title: 'Email Kami',
+                subtitle: _emailAddress,
                 isLink: true,
                 onTap: () => _launchUri(
                   context,
@@ -119,49 +142,56 @@ class SupportPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactRow({
+  Widget _buildContactTile({
     required IconData icon,
-    required String label,
-    required String value,
+    required String title,
+    required String subtitle,
     required VoidCallback onTap,
     bool isLink = false,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: kAccentColor, size: 22),
-            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: kAccentColor, size: 22),
+            ),
+            const SizedBox(width: 16),
             Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.45,
-                    color: Colors.grey.shade800,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: kTextBlack,
+                      fontSize: 15,
+                    ),
                   ),
-                  children: [
-                    TextSpan(
-                      text: '$label ',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isLink ? kPrimaryColor : Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: isLink ? FontWeight.w600 : FontWeight.normal,
+                      decoration: isLink ? TextDecoration.underline : null,
+                      decorationColor: kPrimaryColor,
                     ),
-                    TextSpan(
-                      text: value,
-                      style: TextStyle(
-                        color: isLink ? kPrimaryColor : kTextBlack,
-                        fontWeight: isLink ? FontWeight.w600 : FontWeight.normal,
-                        decoration: isLink ? TextDecoration.underline : null,
-                        decorationColor: kPrimaryColor,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade400),
           ],
         ),
       ),
