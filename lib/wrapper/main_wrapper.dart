@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/dashboard.dart';
 import '../screens/inventory.dart';
+import '../screens/recipe.dart'; 
 import '../screens/profile.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -32,6 +33,7 @@ class _MainWrapperState extends State<MainWrapper> {
         onNavigateToInventory: navigateToInventory,
       ),
       const InventoryScreen(),
+      const RecipeScreen(),
       ProfileScreen(
         onNavigateToInventory: navigateToInventory,
       ),
@@ -68,6 +70,11 @@ class _MainWrapperState extends State<MainWrapper> {
               icon: Icon(Icons.inventory_2_outlined),
               activeIcon: Icon(Icons.inventory_2),
               label: 'Inventory',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.restaurant_menu_outlined),
+              activeIcon: Icon(Icons.restaurant_menu),
+              label: 'Resep',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
