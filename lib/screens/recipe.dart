@@ -28,6 +28,10 @@ class RecipeScreen extends StatefulWidget {
 
 class _RecipeScreenState extends State<RecipeScreen> {
   final Color kPrimaryColor = const Color(0xFFFF9800);
+  
+  String _searchQuery = '';
+  String _selectedFilter = 'Semua';
+  String _sortBy = 'Paling Cocok';
 
   final List<Recipe> _dummyRecipes = [
     Recipe(
@@ -89,6 +93,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
       'available': availableCount,
       'missing': missing,
       'isReady': availableCount == recipeIngredients.length,
+      'missingCount': missing.length,
     };
   }
 
@@ -100,26 +105,74 @@ class _RecipeScreenState extends State<RecipeScreen> {
         title: const Text('Inspirasi Resep', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         backgroundColor: kPrimaryColor,
         elevation: 0,
-        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sort_rounded, color: Colors.white),
+            onPressed: _showSortOptions,
+          ),
+        ],
       ),
       body: Consumer<PantryProvider>(
         builder: (context, provider, child) {
           final pantryItems = provider.items;
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _dummyRecipes.length,
-            itemBuilder: (context, index) {
-              final recipe = _dummyRecipes[index];
-              final matchData = _checkIngredients(recipe.ingredients, pantryItems);
-              
-              final int available = matchData['available'];
-              final int total = recipe.ingredients.length;
-              final bool isReady = matchData['isReady'];
-              final List<String> missingIngredients = matchData['missing'];
+          List<Map<String, dynamic>> processedRecipes = _dummyRecipes.map((recipe) {
+            final matchData = _checkIngredients(recipe.ingredients, pantryItems);
+            return {
+              'recipe': recipe,
+              'available': matchData['available'],
+              'total': recipe.ingredients.length,
+              'missing': matchData['missing'],
+              'isReady': matchData['isReady'],
+              'missingCount': matchData['missingCount'],
+            };
+          }).toList();
 
-              return _buildRecipeCard(recipe, available, total, isReady, missingIngredients);
-            },
+          // 2. Filter Pencarian
+          if (_searchQuery.isNotEmpty) {
+            processedRecipes = processedRecipes.where((data) => (data['recipe'] as Recipe).title.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+          }
+
+          // 3. Filter Status 
+          if (_selectedFilter != 'Semua') {
+            processedRecipes = processedRecipes.where((data) {
+              int missingCount = data['missingCount'];
+              if (_selectedFilter == 'Bisa Dimasak') return missingCount == 0;
+              if (_selectedFilter == 'Bisa Diakali') return missingCount > 0 && missingCount <= 2;
+              if (_selectedFilter == 'Belum Bisa') return missingCount > 2;
+              return true;
+            }).toList();
+          }
+
+          processedRecipes.sort((a, b) {
+            if (_sortBy == 'Paling Cocok') {
+              return (a['missingCount'] as int).compareTo(b['missingCount'] as int);
+            } else if (_sortBy == 'Nama A-Z') {
+              return (a['recipe'] as Recipe).title.compareTo((b['recipe'] as Recipe).title);
+            }
+            return 0;
+          });
+
+          return Column(
+            children: [
+              _buildSeamlessHeader(),
+              _buildStatusFilter(),
+              
+              Expanded(
+                child: processedRecipes.isEmpty 
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        itemCount: processedRecipes.length,
+                        itemBuilder: (context, index) {
+                          final data = processedRecipes[index];
+                          return _buildRecipeCard(
+                            data['recipe'], data['available'], data['total'], data['isReady'], data['missing']
+                          );
+                        },
+                      ),
+              ),
+            ],
           );
         },
       ),
@@ -319,6 +372,113 @@ class _RecipeScreenState extends State<RecipeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildSeamlessHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+        color: kPrimaryColor,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)), 
+        boxShadow: [
+          BoxShadow(color: kPrimaryColor.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: TextField(
+        onChanged: (value) => setState(() => _searchQuery = value),
+        decoration: InputDecoration(
+          hintText: 'Cari nasi goreng, sup...',
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFFFF9800)),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusFilter() {
+    final filters = ['Semua', 'Bisa Dimasak', 'Bisa Diakali', 'Belum Bisa'];
+    return Container(
+      height: 60,
+      margin: const EdgeInsets.only(top: 8),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        itemCount: filters.length,
+        itemBuilder: (context, index) {
+          final filter = filters[index];
+          final isSelected = _selectedFilter == filter;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(filter),
+              selected: isSelected,
+              onSelected: (selected) => setState(() => _selectedFilter = filter),
+              backgroundColor: Colors.white,
+              selectedColor: kPrimaryColor,
+              labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey.shade700, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? kPrimaryColor : Colors.grey.shade300)),
+              showCheckmark: false, 
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(padding: EdgeInsets.only(left: 16, bottom: 16), child: Text('Urutkan Resep', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                _buildSortItem('Paling Cocok', Icons.restaurant_menu),
+                _buildSortItem('Nama A-Z', Icons.sort_by_alpha),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortItem(String option, IconData icon) {
+    final isSelected = _sortBy == option;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? kPrimaryColor : Colors.grey.shade600),
+      title: Text(option, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? kPrimaryColor : Colors.black87)),
+      trailing: isSelected ? Icon(Icons.check_circle, color: kPrimaryColor) : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onTap: () {
+        setState(() => _sortBy = option);
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off_rounded, size: 64, color: Colors.grey.shade300),
+          const SizedBox(height: 16),
+          Text('Tidak ada resep yang sesuai', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+          const SizedBox(height: 8),
+          Text('Coba ubah filter atau kata kunci pencarian Anda.', style: TextStyle(color: Colors.grey.shade500)),
+        ],
       ),
     );
   }
