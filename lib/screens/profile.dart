@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/pantry_provider.dart';
+import '../services/profile_service.dart';
+import 'edit_profile.dart';
 import 'login.dart';
+import 'support.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onNavigateToInventory;
@@ -17,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _email = 'Memuat...';
 
   final Color kPrimaryColor = const Color(0xFFFF9800);
+  final _profileService = ProfileService();
 
   @override
   void initState() {
@@ -26,22 +30,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _fetchUserProfile() async {
     try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user != null) {
-        final email = user.email ?? 'Tidak ada email';
-        
-        final data = await Supabase.instance.client
-            .from('profiles')
-            .select('username')
-            .eq('id', user.id)
-            .single();
-            
-        if (mounted) {
-          setState(() {
-            _email = email;
-            _username = data['username'] ?? 'Pantryoners';
-          });
-        }
+      final profile = await _profileService.fetchCurrentProfile();
+
+      if (mounted) {
+        setState(() {
+          _username = profile.username.isNotEmpty
+              ? profile.username
+              : 'Pantryoners';
+          _email = profile.email.isNotEmpty
+              ? profile.email
+              : 'Tidak ada email';
+        });
       }
     } catch (e) {
       debugPrint('Gagal mengambil profil: $e');
@@ -52,6 +51,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     }
+  }
+
+  Future<void> _showEmailConfirmationDialog(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.mark_email_read_outlined, color: kPrimaryColor),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Konfirmasi Email',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          kEmailConfirmationSentMessage,
+          style: TextStyle(height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'Mengerti',
+              style: TextStyle(
+                color: Color(0xFFFF9800),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _signOut(BuildContext context) async {
@@ -79,6 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirm == true) {
+      ProfileService.clearEmailChangeState();
       await Supabase.instance.client.auth.signOut();
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
@@ -280,12 +317,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icons.edit_outlined,
             title: 'Edit Profil',
             subtitle: 'Ubah nama dan info pribadi',
-            onTap: () {
-              // TODO: Navigasi ke halaman edit profil nanti
-              ScaffoldMessenger.of(context).clearSnackBars(); 
-              
+            onTap: () async {
+              final result = await Navigator.push<ProfileUpdateResult>(
+                context,
+                MaterialPageRoute(builder: (context) => const EditProfilePage()),
+              );
+              if (result == null) return;
+
+              if (result.emailConfirmationPending) {
+                if (result.activeLoginEmail?.isNotEmpty == true) {
+                  setState(() {
+                    _email = result.activeLoginEmail!;
+                  });
+                }
+                if (!context.mounted) return;
+                await _showEmailConfirmationDialog(context);
+                await _fetchUserProfile();
+                return;
+              }
+
+              await _fetchUserProfile();
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fitur Edit Profil segera hadir!')),
+                SnackBar(
+                  content: const Text('Profil berhasil diperbarui.'),
+                  backgroundColor: Colors.green.shade600,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  margin: const EdgeInsets.all(16),
+                ),
               );
             },
           ),
@@ -295,10 +358,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Bantuan & Dukungan',
             subtitle: 'Hubungi kami jika ada masalah',
             onTap: () {
-              ScaffoldMessenger.of(context).clearSnackBars();
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pantryon Support v1.0')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SupportPage()),
               );
             },
           ),
