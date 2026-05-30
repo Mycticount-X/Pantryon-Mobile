@@ -7,6 +7,7 @@ class Recipe {
   final String title;
   final String duration;
   final String difficulty;
+  final String imagePath;
   final List<String> ingredients;
   final List<String> steps;
 
@@ -14,6 +15,7 @@ class Recipe {
     required this.title,
     required this.duration,
     required this.difficulty,
+    required this.imagePath,
     required this.ingredients,
     required this.steps,
   });
@@ -38,7 +40,8 @@ class _RecipeScreenState extends State<RecipeScreen> {
       title: 'Nasi Goreng Spesial',
       duration: '15 Menit',
       difficulty: 'Mudah',
-      ingredients: ['Nasi', 'Telur', 'Bawang Merah', 'Bawang Putih', 'Kecap'],
+      imagePath: 'assets/images/nasi_goreng.jpg',
+      ingredients: ['Beras', 'Telur', 'Bawang Merah', 'Bawang Putih', 'Kecap'],
       steps: [
         'Iris bawang merah dan bawang putih.',
         'Tumis bumbu hingga harum, masukkan telur dan orak-arik.',
@@ -49,6 +52,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
       title: 'Sup Ayam Sayuran',
       duration: '45 Menit',
       difficulty: 'Sedang',
+      imagePath: 'assets/images/sup_ayam_sayur.jpeg',
       ingredients: ['Ayam', 'Wortel', 'Kentang', 'Bawang Putih', 'Daun Bawang'],
       steps: [
         'Rebus ayam hingga empuk, potong dadu.',
@@ -60,6 +64,7 @@ class _RecipeScreenState extends State<RecipeScreen> {
       title: 'Tumis Kangkung Terasi',
       duration: '10 Menit',
       difficulty: 'Mudah',
+      imagePath: 'assets/images/tumis_kangkung_terasi.jpg',
       ingredients: ['Kangkung', 'Bawang Merah', 'Bawang Putih', 'Cabai', 'Terasi'],
       steps: [
         'Petik daun kangkung dan cuci bersih.',
@@ -202,14 +207,22 @@ class _RecipeScreenState extends State<RecipeScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: kPrimaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        recipe.imagePath,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 60,
+                            height: 60,
+                            color: kPrimaryColor.withOpacity(0.1),
+                            child: Icon(Icons.image_not_supported_outlined, color: kPrimaryColor),
+                          );
+                        },
                       ),
-                      child: Icon(Icons.restaurant_menu, color: kPrimaryColor, size: 32),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
