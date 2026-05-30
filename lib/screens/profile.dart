@@ -132,15 +132,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text(' ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            Container(
+              height: 48,
+              color: kPrimaryColor,
+            ),
+
             _buildProfileHeader(),
             
             const SizedBox(height: 24),
