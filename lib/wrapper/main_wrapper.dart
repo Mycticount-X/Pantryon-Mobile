@@ -3,6 +3,8 @@ import '../screens/dashboard.dart';
 import '../screens/inventory.dart';
 import '../screens/recipe.dart'; 
 import '../screens/profile.dart';
+import '../screens/barcode_scanner.dart';
+import '../widgets/alter_item.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -15,6 +17,8 @@ class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
+      if (index == 2) return;
+
     setState(() {
       _selectedIndex = index;
     });
@@ -33,6 +37,7 @@ class _MainWrapperState extends State<MainWrapper> {
         onNavigateToInventory: navigateToInventory,
       ),
       const InventoryScreen(),
+      const SizedBox(),
       const RecipeScreen(),
       ProfileScreen(
         onNavigateToInventory: navigateToInventory,
@@ -41,7 +46,36 @@ class _MainWrapperState extends State<MainWrapper> {
 
     return Scaffold(
       body: screens[_selectedIndex],
-      
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(top: 20), 
+        
+        child: FloatingActionButton(
+          onPressed: () async {
+            final result = await Navigator.push<Map<String, dynamic>>(
+              context, 
+              MaterialPageRoute(builder: (context) => const BarcodeScannerScreen())
+            );
+
+            if (result == null || !context.mounted) return;
+
+            setState(() {
+              _selectedIndex = 1;
+            });
+
+            showDialog(
+              context: context,
+              builder: (context) => AlterItem(
+                initialData: result['found'] == true ? result : null,
+              ),
+            );
+          },
+          backgroundColor: const Color(0xFFFF9800),
+          elevation: 6, 
+          shape: const CircleBorder(),
+          child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 32),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -70,6 +104,10 @@ class _MainWrapperState extends State<MainWrapper> {
               icon: Icon(Icons.inventory_2_outlined),
               activeIcon: Icon(Icons.inventory_2),
               label: 'Inventory',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code, color: Colors.transparent), 
+              label: '',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.restaurant_menu_outlined),
