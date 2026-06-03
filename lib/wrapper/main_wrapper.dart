@@ -50,7 +50,7 @@ class _MainWrapperState extends State<MainWrapper> {
         margin: const EdgeInsets.only(top: 20), 
         
         child: FloatingActionButton(
-          onPressed: () {
+          onPressed: () async {
             final result = await Navigator.push<Map<String, dynamic>>(
               context, 
               MaterialPageRoute(builder: (context) => const BarcodeScannerScreen())
