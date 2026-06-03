@@ -34,18 +34,26 @@ class _MainWrapperState extends State<MainWrapper> {
 
     final List<Widget> screens = [
       DashboardScreen(
+        key: const ValueKey(0),
         onNavigateToInventory: navigateToInventory,
       ),
-      const InventoryScreen(),
-      const SizedBox(),
-      const RecipeScreen(),
+      const InventoryScreen(key: ValueKey(1)),
+      const SizedBox(key: ValueKey(2)),
+      const RecipeScreen(key: ValueKey(3)),
       ProfileScreen(
+        key: const ValueKey(4),
         onNavigateToInventory: navigateToInventory,
       ),
     ];
 
     return Scaffold(
-      body: screens[_selectedIndex],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: screens[_selectedIndex],
+      ),
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 20), 
         
