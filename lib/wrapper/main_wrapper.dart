@@ -4,6 +4,7 @@ import '../screens/inventory.dart';
 import '../screens/recipe.dart'; 
 import '../screens/profile.dart';
 import '../screens/barcode_scanner.dart';
+import '../widgets/alter_item.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -50,7 +51,23 @@ class _MainWrapperState extends State<MainWrapper> {
         
         child: FloatingActionButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()));
+            final result = await Navigator.push<Map<String, dynamic>>(
+              context, 
+              MaterialPageRoute(builder: (context) => const BarcodeScannerScreen())
+            );
+
+            if (result == null || !context.mounted) return;
+
+            setState(() {
+              _selectedIndex = 1;
+            });
+
+            showDialog(
+              context: context,
+              builder: (context) => AlterItem(
+                initialData: result['found'] == true ? result : null,
+              ),
+            );
           },
           backgroundColor: const Color(0xFFFF9800),
           elevation: 6, 
