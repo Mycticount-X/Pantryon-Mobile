@@ -15,34 +15,40 @@ class MainWrapper extends StatefulWidget {
 
 class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
+  int _previousIndex = 0;
 
-  void _onItemTapped(int index) {
-      if (index == 2) return;
+  void _changeTab(int newIndex) {
+    if (newIndex == _selectedIndex) return;
 
     setState(() {
-      _selectedIndex = index;
+      _previousIndex = _selectedIndex;
+      _selectedIndex = newIndex;
     });
+  }
+
+  void _navigateToInventory() {
+    _changeTab(1);
+  }
+
+  void _onItemTapped(int index) {
+    if (index == 2) return;
+    _changeTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    void navigateToInventory() {
-      setState(() {
-        _selectedIndex = 1;
-      });
-    }
 
     final List<Widget> screens = [
       DashboardScreen(
         key: const ValueKey(0),
-        onNavigateToInventory: navigateToInventory,
+        onNavigateToInventory: _navigateToInventory,
       ),
       const InventoryScreen(key: ValueKey(1)),
       const SizedBox(key: ValueKey(2)),
       const RecipeScreen(key: ValueKey(3)),
       ProfileScreen(
         key: const ValueKey(4),
-        onNavigateToInventory: navigateToInventory,
+        onNavigateToInventory: _navigateToInventory,
       ),
     ];
 
@@ -50,7 +56,21 @@ class _MainWrapperState extends State<MainWrapper> {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(opacity: animation, child: child);
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOutCubic,
+          );
+          final slideFromRight = _selectedIndex > _previousIndex;
+          final begin = slideFromRight
+              ? const Offset(1.0, 0.0)
+              : const Offset(-1.0, 0.0);
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: begin,
+              end: Offset.zero,
+            ).animate(curvedAnimation),
+            child: child,
+          );
         },
         child: screens[_selectedIndex],
       ),
@@ -66,9 +86,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
             if (result == null || !context.mounted) return;
 
-            setState(() {
-              _selectedIndex = 1;
-            });
+            _changeTab(1);
 
             showDialog(
               context: context,
