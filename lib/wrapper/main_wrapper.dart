@@ -15,37 +15,65 @@ class MainWrapper extends StatefulWidget {
 
 class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
+  int _previousIndex = 0;
 
-  void _onItemTapped(int index) {
-      if (index == 2) return;
+  void _changeTab(int newIndex) {
+    if (newIndex == _selectedIndex) return;
 
     setState(() {
-      _selectedIndex = index;
+      _previousIndex = _selectedIndex;
+      _selectedIndex = newIndex;
     });
+  }
+
+  void _navigateToInventory() {
+    _changeTab(1);
+  }
+
+  void _onItemTapped(int index) {
+    if (index == 2) return;
+    _changeTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    void navigateToInventory() {
-      setState(() {
-        _selectedIndex = 1;
-      });
-    }
 
     final List<Widget> screens = [
       DashboardScreen(
-        onNavigateToInventory: navigateToInventory,
+        key: const ValueKey(0),
+        onNavigateToInventory: _navigateToInventory,
       ),
-      const InventoryScreen(),
-      const SizedBox(),
-      const RecipeScreen(),
+      const InventoryScreen(key: ValueKey(1)),
+      const SizedBox(key: ValueKey(2)),
+      const RecipeScreen(key: ValueKey(3)),
       ProfileScreen(
-        onNavigateToInventory: navigateToInventory,
+        key: const ValueKey(4),
+        onNavigateToInventory: _navigateToInventory,
       ),
     ];
 
     return Scaffold(
-      body: screens[_selectedIndex],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOutCubic,
+          );
+          final slideFromRight = _selectedIndex > _previousIndex;
+          final begin = slideFromRight
+              ? const Offset(1.0, 0.0)
+              : const Offset(-1.0, 0.0);
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: begin,
+              end: Offset.zero,
+            ).animate(curvedAnimation),
+            child: child,
+          );
+        },
+        child: screens[_selectedIndex],
+      ),
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 20), 
         
@@ -58,9 +86,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
             if (result == null || !context.mounted) return;
 
-            setState(() {
-              _selectedIndex = 1;
-            });
+            _changeTab(1);
 
             showDialog(
               context: context,
