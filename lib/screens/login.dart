@@ -67,14 +67,14 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           
           Positioned(
-            top: screenHeight * 0.08, 
+            top: screenHeight * 0.1, 
             left: 0,
             right: 0,
             child: Column(
               children: [
                 Container(
-                  width: 240, 
-                  height: 240, 
+                  width: 200, 
+                  height: 200, 
                   decoration: BoxDecoration(
                     shape: BoxShape.circle, 
                     border: Border.all(
