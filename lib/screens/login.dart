@@ -67,44 +67,47 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           
           Positioned(
-            top: screenHeight * 0.12, 
+            top: screenHeight * 0.08, 
             left: 0,
             right: 0,
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
+                  width: 240, 
+                  height: 240, 
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, 
+                    border: Border.all(
+                      color: Colors.white, 
+                      width: 4.0, 
+                    ),
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 10,
                         offset: Offset(0, 4),
                       ),
                     ],
-                  ),
-                  child: const Icon(
-                    Icons.inventory_2, 
-                    size: 48, 
-                    color: kPrimaryColor, 
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Pantryon',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.2,
+                    image: const DecorationImage(
+                      image: AssetImage('assets/icons/app_icon.png'), 
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
+                // const SizedBox(height: 16),
+                // const Text(
+                //   'Pantryon',
+                //   style: TextStyle(
+                //     fontSize: 40,
+                //     fontWeight: FontWeight.bold,
+                //     color: Colors.white,
+                //     letterSpacing: 1.2,
+                //   ),
+                // ),
               ],
             ),
           ),
-          
+
           Align(
             alignment: Alignment.bottomCenter,
             child: SingleChildScrollView(
@@ -121,10 +124,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Welcome Back!', 
-                      style: kHeaderStyle,
-                      textAlign: TextAlign.center,
+                    // const Text(
+                    //   'Welcome Back!', 
+                    //   style: kHeaderStyle,
+                    //   textAlign: TextAlign.center,
+                    // ),
+
+                    Text.rich(
+                      TextSpan(
+                        style: kHeaderStyle,
+                        children: [
+                          TextSpan(
+                            text: 'Welcome ',
+                          ),
+                          TextSpan(
+                            text: 'Back!',
+                            style: TextStyle(color: kSecondaryColor), 
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center, 
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -179,12 +198,32 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const Text('Masuk', style: kButtonTextStyle),
                     ),
                     const SizedBox(height: 16),
-                    
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-                      },
-                      child: const Text('Belum punya akun? Daftar di sini', style: kLinkTextStyle),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, 
+                      children: [
+                        const Text(
+                          'Belum punya akun?',
+                          style: TextStyle(
+                            color: Colors.black54, 
+                          ),
+                        ),
+                        
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0), 
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                            );
+                          },
+                          child: const Text(
+                            'Daftar di sini', 
+                            style: kLinkTextStyle,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
