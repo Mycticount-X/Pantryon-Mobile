@@ -8,8 +8,9 @@ import '../screens/barcode_scanner.dart';
 
 class AlterItem extends StatefulWidget {
   final PantryItem? item;
+  final Map<String, dynamic>? initialData;
 
-  const AlterItem({super.key, this.item});
+  const AlterItem({super.key, this.item, this.initialData});
 
   @override
   State<AlterItem> createState() => _AlterItemState();
@@ -90,12 +91,14 @@ class _AlterItemState extends State<AlterItem> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.item?.name ?? '');
+    _nameController = TextEditingController(
+      text: widget.item?.name ?? widget.initialData?['product_name'] ?? '',
+    );
     _quantityController = TextEditingController(
       text: widget.item?.quantity.toString() ?? '',
     );
-    _selectedCategory = widget.item?.category ?? 'Sayuran';
-    _selectedUnit = widget.item?.unit ?? 'pcs';
+    _selectedCategory = widget.item?.category ?? widget.initialData?['category'] ?? 'Sayuran';
+    _selectedUnit = widget.item?.unit ?? widget.initialData?['unit'] ?? 'pcs';
     _expiryDate = widget.item?.expiryDate ?? DateTime.now().add(const Duration(days: 7));
   }
 

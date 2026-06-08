@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../screens/dashboard.dart';
 import '../screens/inventory.dart';
+import '../screens/recipe.dart'; 
 import '../screens/profile.dart';
+import '../screens/barcode_scanner.dart';
+import '../widgets/alter_item.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -12,34 +15,93 @@ class MainWrapper extends StatefulWidget {
 
 class _MainWrapperState extends State<MainWrapper> {
   int _selectedIndex = 0;
+  int _previousIndex = 0;
+
+  void _changeTab(int newIndex) {
+    if (newIndex == _selectedIndex) return;
+
+    setState(() {
+      _previousIndex = _selectedIndex;
+      _selectedIndex = newIndex;
+    });
+  }
+
+  void _navigateToInventory() {
+    _changeTab(1);
+  }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 2) return;
+    _changeTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    void navigateToInventory() {
-      setState(() {
-        _selectedIndex = 1;
-      });
-    }
 
     final List<Widget> screens = [
       DashboardScreen(
-        onNavigateToInventory: navigateToInventory,
+        key: const ValueKey(0),
+        onNavigateToInventory: _navigateToInventory,
       ),
-      const InventoryScreen(),
+      const InventoryScreen(key: ValueKey(1)),
+      const SizedBox(key: ValueKey(2)),
+      const RecipeScreen(key: ValueKey(3)),
       ProfileScreen(
-        onNavigateToInventory: navigateToInventory,
+        key: const ValueKey(4),
+        onNavigateToInventory: _navigateToInventory,
       ),
     ];
 
     return Scaffold(
-      body: screens[_selectedIndex],
-      
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOutCubic,
+          );
+          final slideFromRight = _selectedIndex > _previousIndex;
+          final begin = slideFromRight
+              ? const Offset(1.0, 0.0)
+              : const Offset(-1.0, 0.0);
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: begin,
+              end: Offset.zero,
+            ).animate(curvedAnimation),
+            child: child,
+          );
+        },
+        child: screens[_selectedIndex],
+      ),
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(top: 20), 
+        
+        child: FloatingActionButton(
+          onPressed: () async {
+            final result = await Navigator.push<Map<String, dynamic>>(
+              context, 
+              MaterialPageRoute(builder: (context) => const BarcodeScannerScreen())
+            );
+
+            if (result == null || !context.mounted) return;
+
+            _changeTab(1);
+
+            showDialog(
+              context: context,
+              builder: (context) => AlterItem(
+                initialData: result['found'] == true ? result : null,
+              ),
+            );
+          },
+          backgroundColor: const Color(0xFFFF9800),
+          elevation: 6, 
+          shape: const CircleBorder(),
+          child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 32),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -68,6 +130,15 @@ class _MainWrapperState extends State<MainWrapper> {
               icon: Icon(Icons.inventory_2_outlined),
               activeIcon: Icon(Icons.inventory_2),
               label: 'Inventory',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code, color: Colors.transparent), 
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.restaurant_menu_outlined),
+              activeIcon: Icon(Icons.restaurant_menu),
+              label: 'Resep',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
