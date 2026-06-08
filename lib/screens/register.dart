@@ -87,29 +87,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
 
           Positioned(
-            top: screenHeight * 0.12,
+            top: screenHeight * 0.1,
             left: 0,
             right: 0,
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                  width: 200, 
+                  height: 200, 
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, 
+                    border: Border.all(
+                      color: Colors.white, 
+                      width: 4.0, 
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
                     ],
-                  ),
-                  child: const Icon(Icons.inventory_2, size: 48, color: kPrimaryColor),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Pantryon',
-                  style: TextStyle(
-                    fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.2
+                    image: const DecorationImage(
+                      image: AssetImage('assets/icons/app_icon.png'), 
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
+                // Teks "Pantryon" dan kotak ikon lama sudah dihapus dari sini
               ],
             ),
           ),
@@ -129,10 +134,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Create new account', 
-                      style: kHeaderStyle,
-                      textAlign: TextAlign.center,
+                    Text.rich(
+                      TextSpan(
+                        style: kHeaderStyle,
+                        children: [
+                          const TextSpan(
+                            text: 'Create ',
+                          ),
+                          TextSpan(
+                            text: 'New Account',
+                            style: TextStyle(color: kSecondaryColor),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center, 
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -192,6 +207,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: _isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text('Daftar Sekarang', style: kButtonTextStyle),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, 
+                      children: [
+                        const Text(
+                          'Sudah punya akun?',
+                          style: TextStyle(
+                            color: Colors.black54, 
+                          ),
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0), 
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context); 
+                          },
+                          child: const Text(
+                            'Masuk di sini', 
+                            style: kLinkTextStyle,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
