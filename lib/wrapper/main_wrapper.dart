@@ -139,12 +139,31 @@ class _MainWrapperState extends State<MainWrapper> {
 
                 _changeTab(1);
 
-                showDialog(
-                  context: context,
-                  builder: (context) => AlterItem(
-                    initialData: result['found'] == true ? result : null,
-                  ),
-                );
+                if (result['found'] == true) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlterItem(
+                      initialData: result,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Barang tidak ditemukan. Silakan tambah manual.'),
+                      backgroundColor: Colors.orange.shade700, // Warna peringatan
+                      behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  );
+
+                  showDialog(
+                    context: context,
+                    builder: (context) => const AlterItem(),
+                  );
+                }
               },
               backgroundColor: const Color(0xFFFF9800),
               elevation: 6, 
