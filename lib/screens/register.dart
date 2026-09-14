@@ -32,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'id': user.id,
           'username': _usernameController.text.trim(),
           'email': _emailController.text.trim(),
+          'subscription_tier': 'free',
         });
 
         if (mounted) {
