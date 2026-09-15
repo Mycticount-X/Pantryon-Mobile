@@ -18,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _username = 'Memuat...';
   String _email = 'Memuat...';
+  String _subscriptionTier = 'free';
 
   final Color kPrimaryColor = const Color(0xFFFF9800);
   final _profileService = ProfileService();
@@ -40,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _email = profile.email.isNotEmpty
               ? profile.email
               : 'Tidak ada email';
+          _subscriptionTier = profile.subscriptionTier;
         });
       }
     } catch (e) {
@@ -202,6 +204,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             _email,
             style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.9)),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: _subscriptionTier == 'premium'
+                  ? Colors.amber.shade400
+                  : Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: _subscriptionTier == 'premium'
+                  ? null
+                  : Border.all(color: Colors.white.withOpacity(0.6)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _subscriptionTier == 'premium'
+                      ? Icons.workspace_premium_rounded
+                      : Icons.person_outline_rounded,
+                  size: 14,
+                  color: _subscriptionTier == 'premium' ? Colors.brown.shade800 : Colors.white,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _subscriptionTier == 'premium' ? 'Premium' : 'Free',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: _subscriptionTier == 'premium' ? Colors.brown.shade800 : Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
