@@ -12,6 +12,22 @@ class UserProfile {
   });
 }
 
+const int kFreeTierMonthlyScanLimit = 10;
+
+class ScanLimitStatus {
+  final bool canScan;
+  final int used;
+  final int limit; // -1 berarti unlimited (premium)
+  final int remaining; // -1 berarti unlimited
+
+  const ScanLimitStatus({
+    required this.canScan,
+    required this.used,
+    required this.limit,
+    required this.remaining,
+  });
+}
+
 class ProfileServiceException implements Exception {
   final String message;
   ProfileServiceException(this.message);
@@ -262,5 +278,92 @@ class ProfileService {
       return 'Gagal memperbarui email. Pastikan format benar atau email belum digunakan.';
     }
     return message.isNotEmpty ? message : 'Terjadi kesalahan autentikasi.';
+  }
+
+  Future<ScanLimitStatus> checkScanLimit() async {
+    final user = _client.auth.currentUser;
+    if (user == null) {
+      throw ProfileServiceException('Sesi tidak valid. Silakan masuk kembali.');
+    }
+
+    final data = await _client
+        .from('profiles')
+        .select('subscription_tier, scan_count, scan_count_reset_at')
+        .eq('id', user.id)
+        .single();
+
+    final tier = (data['subscription_tier'] as String?) ?? 'free';
+    if (tier == 'premium') {
+      return const ScanLimitStatus(canScan: true, used: 0, limit: -1, remaining: -1);
+    }
+
+    final resolved = await _resolveScanCount(
+      userId: user.id,
+      rawCount: data['scan_count'] as int?,
+      rawResetAt: data['scan_count_reset_at'] as String?,
+    );
+
+    final remaining = (kFreeTierMonthlyScanLimit - resolved).clamp(0, kFreeTierMonthlyScanLimit);
+    return ScanLimitStatus(
+      canScan: remaining > 0,
+      used: resolved,
+      limit: kFreeTierMonthlyScanLimit,
+      remaining: remaining,
+    );
+  }
+
+  Future<bool> consumeScanIfAllowed() async {
+    final user = _client.auth.currentUser;
+    if (user == null) {
+      throw ProfileServiceException('Sesi tidak valid. Silakan masuk kembali.');
+    }
+
+    final data = await _client
+        .from('profiles')
+        .select('subscription_tier, scan_count, scan_count_reset_at')
+        .eq('id', user.id)
+        .single();
+
+    final tier = (data['subscription_tier'] as String?) ?? 'free';
+    if (tier == 'premium') return true;
+
+    final resolved = await _resolveScanCount(
+      userId: user.id,
+      rawCount: data['scan_count'] as int?,
+      rawResetAt: data['scan_count_reset_at'] as String?,
+    );
+
+    if (resolved >= kFreeTierMonthlyScanLimit) return false;
+
+    await _client
+        .from('profiles')
+        .update({'scan_count': resolved + 1})
+        .eq('id', user.id);
+    return true;
+  }
+
+  /// Helper: baca count saat ini, reset ke 0 di DB kalau sudah beda bulan.
+  Future<int> _resolveScanCount({
+    required String userId,
+    required int? rawCount,
+    required String? rawResetAt,
+  }) async {
+    int count = rawCount ?? 0;
+    final resetAt = rawResetAt != null ? DateTime.tryParse(rawResetAt) : null;
+    final now = DateTime.now();
+
+    final needsReset = resetAt == null ||
+        resetAt.year != now.year ||
+        resetAt.month != now.month;
+
+    if (needsReset) {
+      count = 0;
+      await _client.from('profiles').update({
+        'scan_count': 0,
+        'scan_count_reset_at': now.toIso8601String(),
+      }).eq('id', userId);
+    }
+
+    return count;
   }
 }
