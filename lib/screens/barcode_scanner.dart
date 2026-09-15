@@ -172,7 +172,29 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ... isi overlay seperti sebelumnya
+                  const Icon(Icons.lock_outline_rounded, color: Color(0xFFFF9800), size: 56),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Batas scan bulan ini sudah habis',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Free tier terbatas $kFreeTierMonthlyScanLimit scan/bulan. Upgrade ke Premium untuk scan tanpa batas.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade300),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, {'found': false, 'limitReached': true}),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF9800),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Tutup', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
                 ],
               ),
             ),
