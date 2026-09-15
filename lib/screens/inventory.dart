@@ -5,6 +5,9 @@ import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
 import '../widgets/alter_item.dart';
 import '../styles/style.dart';
+import '../services/profile_service.dart';
+
+const int kFreeTierItemLimit = 20;
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -17,6 +20,21 @@ class _InventoryScreenState extends State<InventoryScreen> {
   String _searchQuery = '';
   String _selectedCategory = 'Semua';
   String _sortBy = 'Terdekat Expired';
+  String _subscriptionTier = 'free';
+  final _profileService = ProfileService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSubscriptionTier();
+  }
+
+  Future<void> _loadSubscriptionTier() async {
+    try {
+      final profile = await _profileService.fetchCurrentProfile();
+      if (mounted) setState(() => _subscriptionTier = profile.subscriptionTier);
+    } catch (_) { }
+  }
 
   String _formatExpiryTime(int totalDays) {
     if (totalDays < 0) return 'Expired';
@@ -60,6 +78,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
           _buildSeamlessHeader(),
           _buildCategoryFilter(),
           
+          Consumer<PantryProvider>(
+            builder: (context, provider, child) => _buildItemLimitBadge(provider),
+          ),
+
           Expanded(
             child: _buildItemsList(),
           ),
@@ -71,6 +93,23 @@ class _InventoryScreenState extends State<InventoryScreen> {
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Tambah', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         elevation: 4,
+      ),
+    );
+  }
+
+  Widget _buildItemLimitBadge(PantryProvider provider) {
+    if (_subscriptionTier == 'premium') return const SizedBox.shrink();
+    final count = provider.totalItems;
+    final isNearLimit = count >= kFreeTierItemLimit;
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
+      child: Text(
+        'Item: $count/$kFreeTierItemLimit',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: isNearLimit ? Colors.red.shade400 : Colors.grey.shade500,
+        ),
       ),
     );
   }
@@ -446,7 +485,51 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   void _showAddItemDialog(BuildContext context) {
+    final provider = Provider.of<PantryProvider>(context, listen: false);
+    final isFree = _subscriptionTier != 'premium';
+
+    if (isFree && provider.totalItems >= kFreeTierItemLimit) {
+      _showItemLimitDialog(context);
+      return;
+    }
+
     showDialog(context: context, builder: (context) => const AlterItem());
+  }
+
+  void _showItemLimitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.inventory_2_outlined, color: kPrimaryColor),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text('Batas Item Tercapai', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        content: Text(
+          'Free tier terbatas $kFreeTierItemLimit item di pantry. Hapus item lama atau upgrade ke Premium untuk menyimpan lebih banyak.',
+          style: const TextStyle(height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context), // nanti bisa diarahkan ke halaman upgrade
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPrimaryColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Upgrade ke Premium', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showEditItemDialog(BuildContext context, PantryItem item) {
