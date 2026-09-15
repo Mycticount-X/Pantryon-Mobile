@@ -18,6 +18,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
 
+  bool _isPremium = false;
   bool _isLoadingProfile = true;
   bool _isSaving = false;
   String? _loadError;
@@ -51,6 +52,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (!mounted) return;
       _nameController.text = profile.username;
       _emailController.text = profile.email;
+      _isPremium = profile.subscriptionTier == 'premium';
       setState(() => _isLoadingProfile = false);
     } on ProfileServiceException catch (e) {
       if (!mounted) return;
@@ -82,6 +84,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final result = await _profileService.updateProfile(
         username: _nameController.text,
         email: _emailController.text,
+        subscriptionTier: _isPremium ? 'premium' : 'free',
         oldPassword: _oldPasswordController.text.isEmpty
             ? null
             : _oldPasswordController.text,
@@ -226,6 +229,46 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     validator: (value) =>
                         _profileService.validateEmail(value ?? ''),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: cardDecoration,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Jenis Akun',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: kTextBlack,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Pilih jenis langganan akun Anda.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  ),
+                  const SizedBox(height: 20),
+                  DropdownButtonFormField<String>(
+                    value: _isPremium ? 'premium' : 'free',
+                    decoration: kInputDecoration(
+                      labelText: 'Status Akun',
+                      prefixIcon: Icons.workspace_premium_outlined,
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'free', child: Text('Free')),
+                      DropdownMenuItem(value: 'premium', child: Text('Premium')),
+                    ],
+                    onChanged: (val) {
+                      if (val == null) return;
+                      setState(() => _isPremium = val == 'premium');
+                    },
                   ),
                 ],
               ),

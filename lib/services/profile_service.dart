@@ -3,8 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class UserProfile {
   final String username;
   final String email;
+  final String subscriptionTier;
 
-  const UserProfile({required this.username, required this.email});
+  const UserProfile({
+    required this.username,
+    required this.email,
+    this.subscriptionTier = 'free',
+  });
 }
 
 class ProfileServiceException implements Exception {
@@ -124,13 +129,14 @@ class ProfileService {
 
       final data = await _client
           .from('profiles')
-          .select('username')
+          .select('username, subscription_tier')
           .eq('id', activeUser.id)
           .single();
 
       return UserProfile(
         username: (data['username'] as String?)?.trim() ?? '',
         email: _activeLoginEmail(activeUser),
+        subscriptionTier: (data['subscription_tier'] as String?)?.trim() ?? 'free',
       );
     } catch (e) {
       throw ProfileServiceException('Gagal memuat profil. Coba lagi.');
@@ -176,6 +182,7 @@ class ProfileService {
   Future<ProfileUpdateResult> updateProfile({
     required String username,
     required String email,
+    required String? subscriptionTier,
     String? oldPassword,
     String? newPassword,
   }) async {
@@ -216,6 +223,7 @@ class ProfileService {
       await _client.from('profiles').update({
         'username': trimmedUsername,
         'email': activeLoginEmail,
+        'subscription_tier': subscriptionTier,
       }).eq('id', user.id);
 
       if (emailChanged) {
